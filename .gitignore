@@ -30,3 +30,4 @@
 *.exe
 *.out
 *.app
+/ps7/__pycache__
