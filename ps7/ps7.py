@@ -36,7 +36,7 @@ def main():
 			# Ouput previous server and all services
 			if currentServer and not currentServer.isTerminated():
 				currentServer.output(report);
-				report.write("Services:\n");
+				report.write("Services\n");
 				for service in currentServersServices:
 					service.output(report);
 				report.write("\n");
@@ -49,7 +49,7 @@ def main():
 			# Finish server, ouput with all services. 
 			currentServer.terminate(eventdata.linenum, eventdata.date, eventdata.time);
 			currentServer.output(report);
-			report.write("Services:\n");
+			report.write("Services\n");
 			for service in currentServersServices:
 				service.output(report);
 			report.write("\n");

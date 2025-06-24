@@ -1,5 +1,7 @@
+# Copyright 2025 James Bord
 
 import re;
+from datetime import datetime;
 
 class Server:
 
@@ -20,7 +22,7 @@ class Server:
 		if (self.terminated):
 			file.write(
 				f"{self.endlinenum}({Server.filename}): {self.enddate} {self.endtime} Boot Completed\n");
-			file.write(f"\tBoot Time: {self.elapsedtime}000ms \n");
+			file.write(f"\tBoot Time: {self.elapsedtime}ms \n");
 		else:
 			file.write(f"**** Incomplete boot **** \n");
 
@@ -32,17 +34,11 @@ class Server:
 		self.endtime = endtime;
 		self.enddate = enddate;
 
-		timeRegex = re.compile(r"(\d)+:(\d)+:(\d+)");
-		startMatch = re.match(timeRegex, self.starttime);
-		start = 3600 * int(startMatch.group(1)) + \
-			60 * int(startMatch.group(2)) + \
-			int(startMatch.group(3));
-		
-		endMatch = re.match(timeRegex, self.endtime);
-		end = 3600 * int(endMatch.group(1)) + \
-			60 * int(endMatch.group(2)) + \
-			int(endMatch.group(3));
-		self.elapsedtime = end - start;
+		start = datetime.strptime(self.starttime, "%H:%M:%S");
+		end = datetime.strptime(self.endtime, "%H:%M:%S");
+		elapsed = end - start;
+
+		self.elapsedtime = int(elapsed.total_seconds() * 1000);
 
 	def isTerminated(self): return self.terminated;
 
