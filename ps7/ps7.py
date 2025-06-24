@@ -14,7 +14,7 @@ def main():
 		print(f"Usage: {sys.argv[0]} <log filename>");
 		return;
 
-	report = open("report.rpt", "w");
+	report = open(sys.argv[1] + ".rpt", "w");
 	log = open(sys.argv[1], "r");
 
 	Server.setFilename(sys.argv[1]);
