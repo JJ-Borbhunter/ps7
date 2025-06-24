@@ -8,6 +8,7 @@ import Events;
 from Service import Service;
 from Server import Server;
 
+from typing import List;
 
 def main():
 	if len(sys.argv) < 2:
@@ -24,7 +25,7 @@ def main():
 	currentService: Service | None = None;
 	eventdata: Events.EventData | None = None;
 
-	currentServersServices: [Server] = [];
+	currentServersServices: List[Service] = [];  # needed to store a servers services
 
 	for linenum, line in enumerate(log, start = 1):
 		# Some event driven logic. 
