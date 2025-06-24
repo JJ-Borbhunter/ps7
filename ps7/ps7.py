@@ -23,13 +23,14 @@ def main():
 	eventdata: Events.EventData | None = None;
 
 	for linenum, line in enumerate(log, start = 1):
-		event, eventdata = Events.parseLine(line, linenum);
+		event, eventdata = Events.parseLine(
+			line, linenum, bool(currentServer) and currentServer.isTerminated());
 	
 		if event == Events.SERVER_START:
-			if currentServer and not currentServer.terminated:
+			if currentServer and not currentServer.isTerminated():
 				currentServer.output(report);
 	
-			currentServer = Server(eventdata.linenum, eventdata.date, eventdata.time);
+			currentServer = Server(eventdata.getLinenum(), eventdata.getDate(), eventdata.getTime());
 
 		if event == Events.SERVER_TERMINATE:
 			currentServer.terminate(eventdata.linenum, eventdata.date, eventdata.time);

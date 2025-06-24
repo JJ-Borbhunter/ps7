@@ -44,6 +44,8 @@ class Server:
 			int(endMatch.group(3));
 		self.elapsedtime = end - start;
 
+	def isTerminated(self): return self.terminated;
+
 	@classmethod
 	def setFilename(self, name: str):
 		Server.filename = name;
