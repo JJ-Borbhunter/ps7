@@ -29,10 +29,10 @@ def main():
 			if currentServer and not currentServer.terminated:
 				currentServer.output(report);
 	
-			currentServer = Server(eventdata.linenum, eventdata.time);
+			currentServer = Server(eventdata.linenum, eventdata.date, eventdata.time);
 
 		if event == Events.SERVER_TERMINATE:
-			currentServer.terminate(eventdata.linenum, 0);
+			currentServer.terminate(eventdata.linenum, eventdata.date, eventdata.time);
 			currentServer.output(report);
 
 
