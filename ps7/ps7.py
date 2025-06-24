@@ -4,12 +4,39 @@ import sys;
 import re;
 import datetime;
 
-import service;
+import Events;
+from Service import Service;
+from Server import Server;
+
 
 def main():
+	serviceNameRegex = re.compile(r"Starting Service.  (\w+) [\d|\.]*");
+	serviceCompleteRegex = re.compile(r"Service started successfully.  (\w+) [\d|\.]*");
+
+	report = open("report.rpt", "w");
+	log = open(sys.argv[1], "r");
+
+	Server.setFilename(sys.argv[1]);
+
+	currentServer: Server | None = None;
+	currentService: Service | None = None;
+	eventdata: Events.EventData | None = None;
+
+	for linenum, line in enumerate(log, start = 1):
+		event, eventdata = Events.parseLine(line, linenum);
+	
+		if event == Events.SERVER_START:
+			if currentServer and not currentServer.terminated:
+				currentServer.output(report);
+	
+			currentServer = Server(eventdata.linenum, eventdata.time);
+
+		if event == Events.SERVER_TERMINATE:
+			currentServer.terminate(eventdata.linenum, 0);
+			currentServer.output(report);
 
 
-	print("Complete.")
+	print("Complete.");
 # main
 
 
