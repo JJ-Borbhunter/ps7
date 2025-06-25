@@ -32,3 +32,5 @@
 *.out
 *.app
 /ps7/__pycache__
+
+# Custom

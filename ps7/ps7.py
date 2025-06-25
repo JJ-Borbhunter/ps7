@@ -3,6 +3,7 @@
 import sys;
 import re;
 import datetime;
+import tempfile;
 
 import Events;
 from Service import Service;
@@ -15,15 +16,25 @@ def main():
 		print(f"Usage: {sys.argv[0]} <log filename>");
 		return;
 
-	report = open(sys.argv[1] + ".rpt", "w");
-	log = open(sys.argv[1], "r");
+	# Filename from command line
+	FILENAME = sys.argv[1];
 
-	Server.setFilename(sys.argv[1]);
-	Service.setFilename(sys.argv[1]);
+	# Tempfile so we can copy it into the final report after the boot record has been written
+	reportTemp = tempfile.TemporaryFile("w+");
+	report = open(FILENAME + ".rpt", "w");
+	log = open(FILENAME, "r");
+
+	# Static class variables so that servers and services can log themselves properly
+	Server.setFilename(FILENAME);
+	Service.setFilename(FILENAME);
 
 	currentServer: Server | None = None;
 	currentService: Service | None = None;
 	eventdata: Events.EventData | None = None;
+
+	# counter ints for boot log
+	TotalServersStarted = 0;
+	TotalServersTerminated = 0;
 
 	currentServersServices: List[Service] = [];  # needed to store a servers services
 
@@ -35,25 +46,31 @@ def main():
 		if event == Events.SERVER_START:
 			# Ouput previous server and all services
 			if currentServer and not currentServer.isTerminated():
-				currentServer.output(report);
-				report.write("Services\n");
+				currentServer.output(reportTemp);
+				reportTemp.write("Services\n");
 				for service in currentServersServices:
-					service.output(report);
-				report.write("\n");
+					service.output(reportTemp);
+				reportTemp.write("\n");
 				currentServersServices = [];
 
 			# New Server
 			currentServer = Server(eventdata.getLinenum(), eventdata.getDate(), eventdata.getTime());
 
+			# Count servers started
+			TotalServersStarted += 1;
+
 		if event == Events.SERVER_TERMINATE:
 			# Finish server, ouput with all services. 
 			currentServer.terminate(eventdata.linenum, eventdata.date, eventdata.time);
-			currentServer.output(report);
-			report.write("Services\n");
+			currentServer.output(reportTemp);
+			reportTemp.write("Services\n");
 			for service in currentServersServices:
-				service.output(report);
-			report.write("\n");
+				service.output(reportTemp);
+			reportTemp.write("\n");
 			currentServersServices = [];
+
+			# count terminations
+			TotalServersTerminated += 1;
 
 		if event == Events.SERVICE_START:
 			# Add failed service if necesary
@@ -68,6 +85,19 @@ def main():
 			currentService.terminate(eventdata.getLinenum(), int(eventdata.getTime()));
 			currentServersServices.append(currentService);
 
+
+	# Prefix to report
+	report.write("Device Boot Report\n\n");
+	report.write(f"InTouch log file: {FILENAME}\n");
+	report.write(f"Lines Scanned: {linenum}\n\n");
+	report.write(
+		f"Device boot count: initiated = {TotalServersStarted}, " \
+		f"completed: {TotalServersTerminated}\n\n\n");
+
+	# Copy from tempfile
+	reportTemp.seek(0);
+	for line in reportTemp:
+		report.write(line);
 
 	print("Complete.");
 # main

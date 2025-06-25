@@ -20,14 +20,14 @@ class Service(object):
 	def __str__(self):
 		if self.elapsedtime != -1:
 			return f"\t{self.name}\n" + \
-				f"\t\tStart: {self.startline}({Service.programName})\n" + \
-				f"\t\tCompleted: {self.endline}({Service.programName})\n" + \
-				f"\t\tElapsed Time: {self.elapsedtime} ms\n";
+				f"\t\t Start: {self.startline}({Service.programName})\n" + \
+				f"\t\t Completed: {self.endline}({Service.programName})\n" + \
+				f"\t\t Elapsed Time: {self.elapsedtime} ms\n";
 		else:
 			return f"\t{self.name}\n" + \
-				f"\t\tStart: {self.startline}({Service.programName})\n" + \
-				"\t\tCompleted: Not Completed\n" + \
-				"\t\tElapsed Time:\n";
+				f"\t\t Start: {self.startline}({Service.programName})\n" + \
+				"\t\t Completed: Not Completed\n" + \
+				"\t\t Elapsed Time:\n";
 
 	def output(self, file):
 		file.write(self.__str__());
