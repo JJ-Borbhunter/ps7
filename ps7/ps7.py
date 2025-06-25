@@ -23,7 +23,7 @@ def main():
 
 	# Tempfile so we can copy it into the final report after the boot record has been written
 	reportTemp = tempfile.TemporaryFile("w+");
-	report = open(FILENAME + ".rpt", "w");
+	report = open(sys.argv[1] + ".rpt", "w");
 
 	# has to be the actual original file lol
 	log = open(sys.argv[1], "r");
