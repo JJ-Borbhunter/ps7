@@ -27,10 +27,10 @@ class Server:
 			file.write(
 				f"{self._endlinenum}({Server.filename}): {self._enddate} {self._endtime} Boot Completed\n");
 			file.write(f"\tBoot Time: {self._elapsedtime}ms \n");
-			print(f"complete boot with   {len(self._services)} services");
+			# print(f"complete boot with   {len(self._services)} services");
 		else:
 			file.write(f"**** Incomplete boot **** \n");
-			print(f"incomplete boot with {len(self._services)} services");
+			# print(f"incomplete boot with {len(self._services)} services");
 
 		file.write("\n");
 
@@ -47,9 +47,10 @@ class Server:
 			file.write("\t*** Services not successfully started: ");
 			i = False;
 			for service in self._services:
-				if i: file.write(", ");
-				file.write(service.getName());
-				i = True;
+				if not service.isTerminated():
+					if i: file.write(", ");
+					file.write(service.getName());
+					i = True;
 			file.write("\n\n");
 	
 	def terminate(self, linenum: int, enddate: str, endtime: str):
@@ -58,6 +59,7 @@ class Server:
 		self._endtime = endtime;
 		self._enddate = enddate;
 
+		# Datetime usage
 		start = datetime.strptime(self._starttime, "%H:%M:%S");
 		end = datetime.strptime(self._endtime, "%H:%M:%S");
 		elapsed = end - start;
@@ -71,7 +73,6 @@ class Server:
 		Server.filename = name;
 
 	def addService(self, s: Service):
-		print(f"Append service to {self._terminated}");
 		self._services.append(s);
 
 	def terminateService(self, name: str, endline: int, elapsedtime: int):
