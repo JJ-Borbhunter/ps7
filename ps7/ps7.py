@@ -19,6 +19,8 @@ def main():
 	# Filename from command line
 	filenameRegex = re.compile(r"([^\\\/]+)$");
 	FILENAME = re.search(filenameRegex, sys.argv[1]).group(1);
+
+	# This print if for my sanity mainly
 	print("Parsing " + FILENAME + " into " + FILENAME + ".rpt");
 
 	# Tempfile so we can copy it into the final report after the boot record has been written
@@ -59,22 +61,22 @@ def main():
 			TotalServersStarted += 1;
 
 		if event == Events.SERVER_TERMINATE:
-			# Finish server, ouput with all services. 
+			# Finish server, but do not output as there could be lagging processses 
 			currentServer.terminate(eventdata.getLinenum(), eventdata.getDate(), eventdata.getTime());
-			currentServer.output(reportTemp);
-			del currentServer;
-			currentServer = None;
-
 			# count terminations
 			TotalServersTerminated += 1;
 
 		if event == Events.SERVICE_START:
-			# new service
-			currentServer.addService(Service(eventdata.getName(), eventdata.getLinenum()));
+			# start service
+			currentServer.startService(eventdata.getName(), eventdata.getLinenum());
 
 		if event == Events.SERVICE_TERMINATE:
-			# terminate service and append to server's services
+			# terminate service
 			currentServer.terminateService(eventdata.getName(), eventdata.getLinenum(), int(eventdata.getTime()));
+
+
+	if currentServer:
+		currentServer.output(reportTemp);
 
 
 	# Prefix to report
@@ -86,9 +88,9 @@ def main():
 		f"completed: {TotalServersTerminated}\n\n\n");
 
 	# Copy from tempfile
-	reportTemp.seek(0);
+	reportTemp.seek(0);  # reset
 	for line in reportTemp:
-		report.write(line);
+		report.write(line);  # write
 
 	reportTemp.close();
 	report.close();

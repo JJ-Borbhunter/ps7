@@ -6,6 +6,33 @@ from typing import List;
 
 from Service import Service;
 
+ALL_SERVICES = (
+	"Logging",
+	"DatabaseInitialize",
+	"MessagingService",
+	"HealthMonitorService",
+	"Persistence",
+	"ConfigurationService",
+	"LandingPadService",
+	"PortConfigurationService",
+	"CacheService",
+	"ThemingService",
+	"StagingService",
+	"DeviceIOService",
+	"BellService",
+	"GateService",
+	"ReaderDataService",
+	"BiometricService",
+	"StateManager",
+	"OfflineSmartviewService",
+	"AVFeedbackService",
+	"DatabaseThreads",
+	"SoftLoadService",
+	"WATCHDOG",
+	"ProtocolService",
+	"DiagnosticsService")
+
+
 class Server:
 
 	filename: str = "";
@@ -16,7 +43,8 @@ class Server:
 		self._startdate = startdate;
 		self._starttime = starttime;
 		self._services: List[Service] = [];
-		pass;
+		for name in ALL_SERVICES:
+			self._services.append(Service(name));
 
 	def output(self, file):
 		file.write("=== Device boot ===\n");
@@ -74,6 +102,10 @@ class Server:
 
 	def addService(self, s: Service):
 		self._services.append(s);
+
+	def startService(self, name: str, startline: int):
+		service = next((s for s in self._services if s.getName() == name), None);
+		if service: service.start(startline);
 
 	def terminateService(self, name: str, endline: int, elapsedtime: int):
 		if len(self._services) < 1: return;

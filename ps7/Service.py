@@ -2,10 +2,13 @@
 
 class Service(object):
 	"""Represents the necesary data to output a service"""
-	def __init__(self, name: str, startline: int):
+	def __init__(self, name: str):
 		super(Service, self).__init__()
 		self._name = name;
 		self._elapsedtime = -1;
+		self._startline = -1;
+
+	def start(self, startline: int):
 		self._startline = startline;
 
 	def terminate(self, endline: int, elapsedtime: int):
@@ -18,16 +21,19 @@ class Service(object):
 		Service.programName = name;
 
 	def __str__(self):
-		if self._elapsedtime != -1:
-			return f"\t{self._name}\n" + \
-				f"\t\t Start: {self._startline}({Service.programName})\n" + \
-				f"\t\t Completed: {self._endline}({Service.programName})\n" + \
-				f"\t\t Elapsed Time: {self._elapsedtime} ms\n";
+		returner: str = f"\t{self._name}\n" ;
+		if self._startline != -1:
+			returner += f"\t\t Start: {self._startline}({Service.programName})\n";
 		else:
-			return f"\t{self._name}\n" + \
-				f"\t\t Start: {self._startline}({Service.programName})\n" + \
-				"\t\t Completed: Not Completed\n" + \
-				"\t\t Elapsed Time:\n";
+			returner += f"\t\t Start: Not started({Service.programName})\n";
+
+		if self._elapsedtime != -1:
+			returner += f"\t\t Completed: {self._endline}({Service.programName})\n";
+			returner += f"\t\t Elapsed Time: {self._elapsedtime} ms\n";
+		else:
+			returner += f"\t\t Completed: Not completed({Service.programName})\n";
+			returner += "\t\t Elapsed Time: \n";
+		return returner;
 
 	def output(self, file):
 		file.write(self.__str__());
