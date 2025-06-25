@@ -5,11 +5,11 @@ import re;
 import datetime;
 import tempfile;
 
+from typing import List;
+
 import Events;
 from Service import Service;
 from Server import Server;
-
-from typing import List;
 
 def main():
 	if len(sys.argv) < 2:
@@ -17,42 +17,41 @@ def main():
 		return;
 
 	# Filename from command line
-	FILENAME = sys.argv[1];
+	filenameRegex = re.compile(r"([^\\\/]+)$");
+	FILENAME = re.search(filenameRegex, sys.argv[1]).group(1);
+	print("Parsing " + FILENAME + " into " + FILENAME + ".rpt");
 
 	# Tempfile so we can copy it into the final report after the boot record has been written
 	reportTemp = tempfile.TemporaryFile("w+");
 	report = open(FILENAME + ".rpt", "w");
-	log = open(FILENAME, "r");
+
+	# has to be the actual original file lol
+	log = open(sys.argv[1], "r");
 
 	# Static class variables so that servers and services can log themselves properly
 	Server.setFilename(FILENAME);
 	Service.setFilename(FILENAME);
 
+	# Object representing previous happenings
+	# None exception included for first happening. 
 	currentServer: Server | None = None;
-	currentService: Service | None = None;
 	eventdata: Events.EventData | None = None;
 
 	# counter ints for boot log
 	TotalServersStarted = 0;
 	TotalServersTerminated = 0;
 
-	currentServersServices: List[Service] = [];  # needed to store a servers services
 
 	for linenum, line in enumerate(log, start = 1):
 		# Some event driven logic. 
-		event, eventdata = Events.parseLine(
-			line, linenum, bool(currentServer) and not currentServer.isTerminated());
+		event, eventdata = Events.parseLine(line, linenum, bool(currentServer));
 	
 		if event == Events.SERVER_START:
 			# Ouput previous server and all services
-			if currentServer and not currentServer.isTerminated():
+			if currentServer:
 				currentServer.output(reportTemp);
-				reportTemp.write("Services\n");
-				for service in currentServersServices:
-					service.output(reportTemp);
-				reportTemp.write("\n");
-				currentServersServices = [];
-
+				del currentServer;
+				currentServer = None;
 			# New Server
 			currentServer = Server(eventdata.getLinenum(), eventdata.getDate(), eventdata.getTime());
 
@@ -61,29 +60,21 @@ def main():
 
 		if event == Events.SERVER_TERMINATE:
 			# Finish server, ouput with all services. 
-			currentServer.terminate(eventdata.linenum, eventdata.date, eventdata.time);
+			currentServer.terminate(eventdata.getLinenum(), eventdata.getDate(), eventdata.getTime());
 			currentServer.output(reportTemp);
-			reportTemp.write("Services\n");
-			for service in currentServersServices:
-				service.output(reportTemp);
-			reportTemp.write("\n");
-			currentServersServices = [];
+			del currentServer;
+			currentServer = None;
 
 			# count terminations
 			TotalServersTerminated += 1;
 
 		if event == Events.SERVICE_START:
-			# Add failed service if necesary
-			if currentService and not currentService.isTerminated():
-				currentServersServices.append(currentService);
-
 			# new service
-			currentService = Service(eventdata.getName(), eventdata.getLinenum());
+			currentServer.addService(Service(eventdata.getName(), eventdata.getLinenum()));
 
 		if event == Events.SERVICE_TERMINATE:
 			# terminate service and append to server's services
-			currentService.terminate(eventdata.getLinenum(), int(eventdata.getTime()));
-			currentServersServices.append(currentService);
+			currentServer.terminateService(eventdata.getName(), eventdata.getLinenum(), int(eventdata.getTime()));
 
 
 	# Prefix to report
@@ -99,8 +90,12 @@ def main():
 	for line in reportTemp:
 		report.write(line);
 
+	reportTemp.close();
+	report.close();
+	log.close();
 	print("Complete.");
 # main
+
 
 
 if __name__ == '__main__':
