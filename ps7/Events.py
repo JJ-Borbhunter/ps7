@@ -20,6 +20,7 @@ class EventData:
     def getLinenum(self): return self._linenum;
     def getName(self): return self._name;
 
+
 def parseLine(line: str, linenum: int, isServer: bool) -> (int, EventData):
     serverStartedRegex = re.compile(r"([\d|-]+) ([\d|:]+): \(log\.c\.166\) server started");
     serverTeminatedRegex = re.compile(r"([\d|-]+) ([\d|:]+).*oejs\.AbstractConnector:Started SelectChannelConnector.*");

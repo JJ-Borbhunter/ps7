@@ -30,7 +30,7 @@ ALL_SERVICES = (
 	"SoftLoadService",
 	"WATCHDOG",
 	"ProtocolService",
-	"DiagnosticsService")
+	"DiagnosticsService");
 
 
 class Server:
