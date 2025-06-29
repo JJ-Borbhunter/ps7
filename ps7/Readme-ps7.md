@@ -46,3 +46,6 @@ The services were handled as a list of Service.Service objects within each insta
 
 ## Acknowledgements
 https://regex101.com/ used to test and refactor RegEx expressions.
+
+## Changes:
+All I did was add the reports ouputted by parsing the 6 given log files so that the graders could read them. 
