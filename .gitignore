@@ -36,3 +36,5 @@
 # Custom
 *.log
 *.rpt
+ps7/out.ps
+ps7/out.pdf
